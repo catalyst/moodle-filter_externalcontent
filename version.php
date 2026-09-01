@@ -30,3 +30,4 @@ $plugin->release   = 2026090100;              // Match release exactly to versio
 $plugin->requires  = 2024100100;              // Requires this Moodle version (4.5).
 $plugin->component = 'filter_externalcontent';
 $plugin->maturity  = MATURITY_ALPHA;
+$plugin->supported = [405, 405];
