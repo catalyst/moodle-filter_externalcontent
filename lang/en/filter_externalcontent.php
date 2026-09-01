@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -26,6 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'External content highlighter';
 $string['filtername'] = 'External content highlighter';
+$string['pluginname'] = 'External content highlighter';
 $string['privacy:metadata'] = 'The External content highlighter filter plugin does not store any personal data.';
