@@ -62,7 +62,7 @@ if ($ADMIN->fulltree) {
         PARAM_TEXT
     ));
 
-    // Whether to append the label after matching links.
+    // Whether to prepend the label before matching links.
     $settings->add(new admin_setting_configcheckbox(
         'filter_externalcontent/showindicator',
         get_string('settings:showindicator', 'filter_externalcontent'),

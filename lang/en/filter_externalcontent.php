@@ -38,6 +38,6 @@ $string['settings:domains_desc'] = 'A list of domains (one per line) that should
 $string['settings:label'] = 'Label text';
 $string['settings:label_desc'] = 'The text displayed in the label appended after matching links.';
 $string['settings:showindicator'] = 'Show label';
-$string['settings:showindicator_desc'] = 'Whether to append the label next to matching links.';
+$string['settings:showindicator_desc'] = 'Whether to prepend the label before matching links.';
 $string['settings:textcolour'] = 'Label text colour';
 $string['settings:textcolour_desc'] = 'The text colour of the label appended after matching links.';
