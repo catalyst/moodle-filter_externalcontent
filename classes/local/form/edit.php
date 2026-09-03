@@ -34,7 +34,7 @@ class edit extends moodleform {
         \MoodleQuickForm::registerElementType(
             'filter_externalcontent_colourpicker',
             __DIR__ . '/colourpicker_element.php',
-                'filter_externalcontent\local\form\MoodleQuickForm_filter_externalcontent_colourpicker'
+            'filter_externalcontent\local\form\MoodleQuickForm_filter_externalcontent_colourpicker'
         );
 
         $mform = $this->_form;
