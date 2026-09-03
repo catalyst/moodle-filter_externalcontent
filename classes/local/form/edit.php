@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace filter_externalcontent\form;
+namespace filter_externalcontent\local\form;
 
 use filter_externalcontent\highlight_renderer;
 use moodleform;
@@ -34,7 +34,7 @@ class edit extends moodleform {
         \MoodleQuickForm::registerElementType(
             'filter_externalcontent_colourpicker',
             __DIR__ . '/colourpicker_element.php',
-            'MoodleQuickForm_filter_externalcontent_colourpicker'
+                'filter_externalcontent\local\form\MoodleQuickForm_filter_externalcontent_colourpicker'
         );
 
         $mform = $this->_form;

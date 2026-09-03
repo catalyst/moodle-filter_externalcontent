@@ -18,7 +18,7 @@ namespace filter_externalcontent;
 
 use admin_setting_description;
 use core\exception\moodle_exception;
-use filter_externalcontent\table\highlights_table;
+use filter_externalcontent\local\table\highlights_table;
 use moodle_url;
 use stdClass;
 

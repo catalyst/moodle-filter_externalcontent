@@ -24,6 +24,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace filter_externalcontent\local\form;
+use html_writer;
+use MoodleQuickForm_editor;
+use renderer_base;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -70,18 +75,18 @@ class MoodleQuickForm_filter_externalcontent_colourpicker extends MoodleQuickFor
         // attribute below and stretches the input across the whole form row.
         // Cap it with an inline max-width so it stays a compact colour field.
         $content = html_writer::start_tag('div', ['class' => 'form-colourpicker defaultsnext',
-            'style' => 'max-width: 10em;']);
+                'style' => 'max-width: 10em;']);
         $content .= html_writer::tag('div', $OUTPUT->pix_icon('i/loading', get_string('loading', 'admin'), 'moodle', [
-            'class' => 'loadingicon',
+                'class' => 'loadingicon',
         ]), ['class' => 'admin_colourpicker clearfix']);
         $content .= html_writer::empty_tag('input', [
-            'type' => 'text',
-            'id' => $id,
-            'name' => $this->getName(),
-            'value' => $this->getValue(),
-            'size' => 12,
-            'class' => 'form-control text-ltr',
-            'style' => 'max-width: 10em;',
+                'type' => 'text',
+                'id' => $id,
+                'name' => $this->getName(),
+                'value' => $this->getValue(),
+                'size' => 12,
+                'class' => 'form-control text-ltr',
+                'style' => 'max-width: 10em;',
         ]);
         $content .= html_writer::end_tag('div');
 

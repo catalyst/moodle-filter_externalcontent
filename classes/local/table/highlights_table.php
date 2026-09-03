@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace filter_externalcontent\table;
+namespace filter_externalcontent\local\table;
 
 use flexible_table;
 use html_writer;

@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use filter_externalcontent\form\edit;
+use filter_externalcontent\local\form\edit;
 use filter_externalcontent\records_manager;
 
 require(__DIR__ . '/../../config.php');
