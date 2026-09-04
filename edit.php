@@ -72,37 +72,6 @@ if ($mform->is_cancelled()) {
 $PAGE->navbar->add(get_string($action . '_breadcrumb', 'filter_externalcontent'));
 $PAGE->set_title(get_string($action . '_heading', 'filter_externalcontent'));
 
-// Live-update the preview row (added at the bottom of the form itself, right
-// under the save/cancel buttons, see classes/form/edit.php) as the label/
-// colour/indicator fields change, and once immediately on load so it reflects
-// whatever set_data() populated the fields with.
-$PAGE->requires->js_init_code(<<<JS
-require(['jquery'], function($) {
-    var updatePreview = function() {
-        var label = $('#id_label').val() || '';
-        var background = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?\$/.test($('#id_backgroundcolour').val())
-            ? $('#id_backgroundcolour').val() : '#f0ad4e';
-        var textcolour = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?\$/.test($('#id_textcolour').val())
-            ? $('#id_textcolour').val() : '#ffffff';
-
-        $('#filter-externalcontent-preview-wrap').attr('style', 'outline:2px solid ' + background + ';padding-right:4px;');
-
-        var \$label = $('#filter-externalcontent-preview-label');
-        if (label !== '') {
-            \$label.text(label);
-            \$label.attr('style', 'background-color:' + background + ';color:' + textcolour +
-                ';padding: 1px 4px 1px 2px;');
-        } else {
-            \$label.attr('style', 'display:none;');
-        }
-    };
-
-    $('#id_label, #id_backgroundcolour, #id_textcolour').on('input change', updatePreview);
-    updatePreview();
-});
-JS
-    , true);
-
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string($action . '_heading', 'filter_externalcontent'));
 $mform->display();

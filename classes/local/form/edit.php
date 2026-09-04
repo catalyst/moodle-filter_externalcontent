@@ -30,6 +30,7 @@ use moodleform;
 class edit extends moodleform {
     #[\Override]
     public function definition() {
+        global $OUTPUT;
         require_once(__DIR__ . '/colourpicker_element.php');
         \MoodleQuickForm::registerElementType(
             'filter_externalcontent_colourpicker',
@@ -83,25 +84,23 @@ class edit extends moodleform {
 
         $this->add_action_buttons();
 
-        // Placeholder preview row, aligned in the same column as the save
-        // button above it. Its real content/colours are synced live by JS
-        // (see edit.php) as soon as the page loads and whenever the label/
-        // colour/indicator fields change, so the placeholder values used
-        // here don't matter.
-        $previewlabel = \html_writer::tag('span', get_string('preview_samplelabel', 'filter_externalcontent'), [
-            'id' => 'filter-externalcontent-preview-label',
-            'class' => 'filter-externalcontent-label',
-            'style' => highlight_renderer::build_label_style('#f0ad4e', '#ffffff'),
-        ]);
-        $previewanchor = \html_writer::link('#', get_string('preview_samplelink', 'filter_externalcontent'), [
-            'onclick' => 'return false;',
-        ]);
-        $previewwrap = \html_writer::tag('span', $previewlabel . $previewanchor, [
-            'id' => 'filter-externalcontent-preview-wrap',
-            'style' => highlight_renderer::build_outline_style('#f0ad4e'),
-        ]);
+        // Placeholder preview row, in sync with the label/
+        // colour fields above whenever they change.
 
-        $mform->addElement('static', 'preview', get_string('preview_heading', 'filter_externalcontent'), $previewwrap);
+        $previewcontext = (object) [
+            'wrapid' => 'filter-externalcontent-preview-wrap',
+            'labelid' => 'filter-externalcontent-preview-label',
+            'labeltext' => get_string('preview_samplelabel', 'filter_externalcontent'),
+            'labelstyle' => highlight_renderer::build_label_style('#f0ad4e', '#ffffff'),
+            'outlinestyle' => highlight_renderer::build_outline_style('#f0ad4e'),
+            'linktext' => get_string('preview_samplelink', 'filter_externalcontent'),
+            'labelfieldid' => 'id_label',
+            'backgroundfieldid' => 'id_backgroundcolour',
+            'textfieldid' => 'id_textcolour',
+        ];
+        $preview = $OUTPUT->render_from_template('filter_externalcontent/highlight_preview', $previewcontext);
+
+        $mform->addElement('static', 'preview', get_string('preview_heading', 'filter_externalcontent'), $preview);
     }
 
     /**
