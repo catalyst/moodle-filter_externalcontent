@@ -65,9 +65,9 @@ class edit extends moodleform {
         $mform->setDefault('label', 'External');
 
         $mform->addElement(
-                'filter_externalcontent_colourpicker',
-                'textcolour',
-                get_string('settings:textcolour', 'filter_externalcontent')
+            'filter_externalcontent_colourpicker',
+            'textcolour',
+            get_string('settings:textcolour', 'filter_externalcontent')
         );
         $mform->setType('textcolour', PARAM_TEXT);
         $mform->addHelpButton('textcolour', 'settings:textcolour', 'filter_externalcontent');

@@ -36,12 +36,12 @@ final class records_manager_test extends advanced_testcase {
      */
     protected function make_record(array $overrides = []): \stdClass {
         return (object) array_merge([
-            'name' => 'Test highlight',
             'enabled' => 1,
+            'name' => 'Test highlight',
             'domains' => 'example.com',
-            'backgroundcolour' => '#f0ad4e',
-            'textcolour' => '#ffffff',
             'label' => 'External',
+            'textcolour' => '#ffffff',
+            'backgroundcolour' => '#f0ad4e',
         ], $overrides);
     }
 
