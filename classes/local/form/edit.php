@@ -43,12 +43,12 @@ class edit extends moodleform {
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_ALPHANUM);
 
+        $mform->addElement('advcheckbox', 'enabled', get_string('enabled', 'filter_externalcontent'));
+        $mform->setDefault('enabled', 1);
+
         $mform->addElement('text', 'name', get_string('name', 'filter_externalcontent'));
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
-
-        $mform->addElement('advcheckbox', 'enabled', get_string('enabled', 'filter_externalcontent'));
-        $mform->setDefault('enabled', 1);
 
         $mform->addElement(
             'textarea',
@@ -60,6 +60,19 @@ class edit extends moodleform {
         $mform->addHelpButton('domains', 'settings:domains', 'filter_externalcontent');
         $mform->addRule('domains', get_string('required'), 'required', null, 'client');
 
+        $mform->addElement('text', 'label', get_string('settings:label', 'filter_externalcontent'));
+        $mform->setType('label', PARAM_TEXT);
+        $mform->setDefault('label', 'External');
+
+        $mform->addElement(
+                'filter_externalcontent_colourpicker',
+                'textcolour',
+                get_string('settings:textcolour', 'filter_externalcontent')
+        );
+        $mform->setType('textcolour', PARAM_TEXT);
+        $mform->addHelpButton('textcolour', 'settings:textcolour', 'filter_externalcontent');
+        $mform->setDefault('textcolour', '#ffffff');
+
         $mform->addElement(
             'filter_externalcontent_colourpicker',
             'backgroundcolour',
@@ -68,19 +81,6 @@ class edit extends moodleform {
         $mform->setType('backgroundcolour', PARAM_TEXT);
         $mform->addHelpButton('backgroundcolour', 'settings:backgroundcolour', 'filter_externalcontent');
         $mform->setDefault('backgroundcolour', '#f0ad4e');
-
-        $mform->addElement(
-            'filter_externalcontent_colourpicker',
-            'textcolour',
-            get_string('settings:textcolour', 'filter_externalcontent')
-        );
-        $mform->setType('textcolour', PARAM_TEXT);
-        $mform->addHelpButton('textcolour', 'settings:textcolour', 'filter_externalcontent');
-        $mform->setDefault('textcolour', '#ffffff');
-
-        $mform->addElement('text', 'label', get_string('settings:label', 'filter_externalcontent'));
-        $mform->setType('label', PARAM_TEXT);
-        $mform->setDefault('label', 'External');
 
         $this->add_action_buttons();
 
