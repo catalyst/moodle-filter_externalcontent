@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Admin settings for the externalcontent filter.
+ * Toggle the enabled state of a highlight.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
@@ -23,12 +23,24 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+use filter_externalcontent\records_manager;
 
-if ($ADMIN->fulltree) {
-    $settings->add(new \filter_externalcontent\admin_setting_managehighlights(
-        'filter_externalcontent/managehighlights',
-        get_string('manage_heading', 'filter_externalcontent'),
-        ''
-    ));
+require(__DIR__ . '/../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
+
+$id = required_param('id', PARAM_ALPHANUM);
+
+require_login();
+require_capability('moodle/site:config', context_system::instance());
+require_sesskey();
+
+$manageurl = new moodle_url('/admin/settings.php', ['section' => 'filtersettingexternalcontent']);
+
+$manager = new records_manager();
+if (empty($manager->get($id))) {
+    throw new moodle_exception('not_found', 'filter_externalcontent', $manageurl);
 }
+
+$manager->toggle($id);
+
+redirect($manageurl);
