@@ -30,6 +30,12 @@ namespace filter_externalcontent;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class highlight_renderer {
+    /** @var string default label background colour, used as a fallback when a highlight's colour is missing/invalid. */
+    const DEFAULT_BACKGROUND_COLOUR = '#f0ad4e';
+
+    /** @var string default label text colour, used as a fallback when a highlight's colour is missing/invalid. */
+    const DEFAULT_TEXT_COLOUR = '#ffffff';
+
     /**
      * Validate a configured colour value, falling back to a default if it is
      * not a valid CSS hex colour.
@@ -112,9 +118,6 @@ class highlight_renderer {
         string $linktext,
         string $href = '#'
     ): string {
-        $backgroundcolour = self::sanitise_colour($backgroundcolour, '#f0ad4e');
-        $textcolour = self::sanitise_colour($textcolour, '#ffffff');
-
         $labelhtml = self::build_label_html($label, $backgroundcolour, $textcolour);
         $outlinestyle = self::build_outline_style($backgroundcolour);
 

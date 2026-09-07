@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Toggle the enabled state of a highlight.
+ * Perform a simple action (toggle enabled state, delete) on a highlight.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
@@ -29,6 +29,7 @@ require(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 $id = required_param('id', PARAM_ALPHANUM);
+$action = required_param('action', PARAM_ALPHA);
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
@@ -41,6 +42,15 @@ if (empty($manager->get($id))) {
     throw new moodle_exception('not_found', 'filter_externalcontent', $manageurl);
 }
 
-$manager->toggle($id);
+switch ($action) {
+    case 'toggle':
+        $manager->toggle($id);
+        break;
+    case 'delete':
+        $manager->delete($id);
+        break;
+    default:
+        throw new moodle_exception('invalidaction', 'error');
+}
 
 redirect($manageurl);

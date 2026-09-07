@@ -19,44 +19,31 @@
 
     Live preview of what a highlight will look like when applied to a
     matching link. Rendered as a static row inside the highlight edit form
-    (see classes/form/edit.php), right under the save/cancel buttons;
+    (see classes/local/form/edit.php), right under the save/cancel buttons.
 
-    Context variables required for this template:
-    * wrapid - id for the outer wrapping element
-    * labelid - id for the label element
-    * labeltext - initial label text
-    * labelstyle - initial CSS style for the label element
-    * outlinestyle - initial CSS style for the wrapping element
-    * linktext - sample link text
-    * labelfieldid - id of the form's label text field to watch
-    * backgroundfieldid - id of the form's background colour field to watch
-    * textfieldid - id of the form's text colour field to watch
+    Context variables:
+    * defaultbackground - fallback background colour, must match
+      \filter_externalcontent\highlight_renderer::DEFAULT_BACKGROUND_COLOUR
+    * defaulttext - fallback text colour, must match
+      \filter_externalcontent\highlight_renderer::DEFAULT_TEXT_COLOUR
 
     Example context (json):
     {
-        "wrapid": "filter-externalcontent-preview-wrap",
-        "labelid": "filter-externalcontent-preview-label",
-        "labeltext": "External",
-        "labelstyle": "background-color:#f0ad4e;color:#ffffff;padding: 1px 4px 1px 2px;",
-        "outlinestyle": "outline:2px solid #f0ad4e;padding-right:4px;",
-        "linktext": "Example external link",
-        "labelfieldid": "id_label",
-        "backgroundfieldid": "id_backgroundcolour",
-        "textfieldid": "id_textcolour"
+        "defaultbackground": "#f0ad4e",
+        "defaulttext": "#ffffff"
     }
 }}
-<span id="{{wrapid}}" style="{{outlinestyle}}">
-    <span id="{{labelid}}" class="filter-externalcontent-label" style="{{labelstyle}}">{{labeltext}}</span>
-    <a href="#" onclick="return false;">{{linktext}}</a>
+<span id="filter-externalcontent-preview-{{uniqid}}" class="filter-externalcontent-preview">
+    <span class="filter-externalcontent-label">
+        {{#str}} preview_samplelabel, filter_externalcontent {{/str}}
+    </span>
+    <a href="#" onclick="return false;">{{#str}} preview_samplelink, filter_externalcontent {{/str}}</a>
 </span>
 {{#js}}
 require(['filter_externalcontent/highlight_preview'], function(Preview) {
-    Preview.init({
-        wrapId: '{{wrapid}}',
-        labelId: '{{labelid}}',
-        labelFieldId: '{{labelfieldid}}',
-        backgroundFieldId: '{{backgroundfieldid}}',
-        textFieldId: '{{textfieldid}}'
+    Preview.init('filter-externalcontent-preview-{{uniqid}}', {
+        defaultBackground: '{{defaultbackground}}',
+        defaultText: '{{defaulttext}}'
     });
 });
 {{/js}}

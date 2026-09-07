@@ -96,11 +96,15 @@ class highlights_table extends flexible_table {
 
         $buttons = [];
 
-        $action = !empty($record->enabled) ? 'hide' : 'show';
-        $title = !empty($record->enabled) ? get_string('disable') : get_string('enable');
+        $toggleaction = !empty($record->enabled) ? 'hide' : 'show';
+        $toggletitle = !empty($record->enabled) ? get_string('disable') : get_string('enable');
         $buttons[] = $OUTPUT->action_icon(
-            new moodle_url('/filter/externalcontent/status.php', ['id' => $record->id, 'sesskey' => sesskey()]),
-            new pix_icon('t/' . $action, $title)
+            new moodle_url('/filter/externalcontent/action.php', [
+                'id' => $record->id,
+                'action' => 'toggle',
+                'sesskey' => sesskey(),
+            ]),
+            new pix_icon('t/' . $toggleaction, $toggletitle)
         );
 
         $buttons[] = $OUTPUT->action_icon(
@@ -109,8 +113,19 @@ class highlights_table extends flexible_table {
         );
 
         $buttons[] = $OUTPUT->action_icon(
-            new moodle_url('/filter/externalcontent/delete.php', ['id' => $record->id]),
-            new pix_icon('t/delete', get_string('delete'))
+            new moodle_url('/filter/externalcontent/action.php', [
+                'id' => $record->id,
+                'action' => 'delete',
+                'sesskey' => sesskey(),
+            ]),
+            new pix_icon('t/delete', get_string('delete')),
+            null,
+            [
+                'data-modal' => 'confirmation',
+                'data-modal-title-str' => json_encode(['delete_heading', 'filter_externalcontent']),
+                'data-modal-content-str' => json_encode(['delete_confirm', 'filter_externalcontent', $record->name]),
+                'data-modal-yes-button-str' => json_encode(['delete', 'core']),
+            ]
         );
 
         return html_writer::tag('nobr', implode(' ', $buttons));

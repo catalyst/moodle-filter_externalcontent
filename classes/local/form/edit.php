@@ -71,7 +71,7 @@ class edit extends moodleform {
         );
         $mform->setType('textcolour', PARAM_TEXT);
         $mform->addHelpButton('textcolour', 'settings:textcolour', 'filter_externalcontent');
-        $mform->setDefault('textcolour', '#ffffff');
+        $mform->setDefault('textcolour', highlight_renderer::DEFAULT_TEXT_COLOUR);
 
         $mform->addElement(
             'filter_externalcontent_colourpicker',
@@ -80,25 +80,14 @@ class edit extends moodleform {
         );
         $mform->setType('backgroundcolour', PARAM_TEXT);
         $mform->addHelpButton('backgroundcolour', 'settings:backgroundcolour', 'filter_externalcontent');
-        $mform->setDefault('backgroundcolour', '#f0ad4e');
+        $mform->setDefault('backgroundcolour', highlight_renderer::DEFAULT_BACKGROUND_COLOUR);
 
         $this->add_action_buttons();
 
-        // Placeholder preview row, in sync with the label/
-        // colour fields above whenever they change.
-
-        $previewcontext = (object) [
-            'wrapid' => 'filter-externalcontent-preview-wrap',
-            'labelid' => 'filter-externalcontent-preview-label',
-            'labeltext' => get_string('preview_samplelabel', 'filter_externalcontent'),
-            'labelstyle' => highlight_renderer::build_label_style('#f0ad4e', '#ffffff'),
-            'outlinestyle' => highlight_renderer::build_outline_style('#f0ad4e'),
-            'linktext' => get_string('preview_samplelink', 'filter_externalcontent'),
-            'labelfieldid' => 'id_label',
-            'backgroundfieldid' => 'id_backgroundcolour',
-            'textfieldid' => 'id_textcolour',
-        ];
-        $preview = $OUTPUT->render_from_template('filter_externalcontent/highlight_preview', $previewcontext);
+        $preview = $OUTPUT->render_from_template('filter_externalcontent/highlight_preview', [
+            'defaultbackground' => highlight_renderer::DEFAULT_BACKGROUND_COLOUR,
+            'defaulttext' => highlight_renderer::DEFAULT_TEXT_COLOUR,
+        ]);
 
         $mform->addElement('static', 'preview', get_string('preview_heading', 'filter_externalcontent'), $preview);
     }

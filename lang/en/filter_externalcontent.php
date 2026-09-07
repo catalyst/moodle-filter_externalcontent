@@ -29,7 +29,6 @@ $string['actions'] = 'Actions';
 $string['add_breadcrumb'] = 'Add highlight';
 $string['add_heading'] = 'Add highlight';
 $string['add_highlight'] = 'Add a new highlight';
-$string['delete_breadcrumb'] = 'Delete highlight';
 $string['delete_confirm'] = 'Are you sure you want to delete the highlight "{$a}"?';
 $string['delete_heading'] = 'Delete highlight';
 $string['edit_breadcrumb'] = 'Edit highlight';
