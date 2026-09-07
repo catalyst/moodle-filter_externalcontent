@@ -46,8 +46,8 @@ $string['preview_samplelabel'] = 'External';
 $string['preview_samplelink'] = 'Example external link';
 $string['privacy:metadata'] = 'The External content highlighter filter plugin does not store any personal data.';
 $string['settings:backgroundcolour'] = 'Label background colour';
-$string['settings:backgroundcolour_desc'] = 'The background colour of the label appended after matching links.';
-$string['settings:backgroundcolour_help'] = 'The background colour of the label appended after matching links. ' .
+$string['settings:backgroundcolour_desc'] = 'The background colour of the label appended before matching links.';
+$string['settings:backgroundcolour_help'] = 'The background colour of the label appended before matching links. ' .
     'Enter a hex colour, e.g. #f0ad4e or #fff.';
 $string['settings:domains'] = 'Domains to highlight';
 $string['settings:domains_desc'] = 'A list of domains (one per line) that should be visually flagged as external ' .
@@ -59,6 +59,6 @@ $string['settings:domains_help'] = 'A list of domains (one per line) that should
 $string['settings:label'] = 'Label text';
 $string['settings:label_desc'] = 'The text displayed in the label prepended before matching links.';
 $string['settings:textcolour'] = 'Label text colour';
-$string['settings:textcolour_desc'] = 'The text colour of the label appended after matching links.';
-$string['settings:textcolour_help'] = 'The text colour of the label appended after matching links. Enter a hex ' .
+$string['settings:textcolour_desc'] = 'The text colour of the label prepended before matching links.';
+$string['settings:textcolour_help'] = 'The text colour of the label prepended before matching links. Enter a hex ' .
     'colour, e.g. #ffffff or #fff.';
