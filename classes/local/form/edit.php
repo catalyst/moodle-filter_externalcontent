@@ -87,6 +87,7 @@ class edit extends moodleform {
         $preview = $OUTPUT->render_from_template('filter_externalcontent/highlight_preview', [
             'defaultbackground' => highlight_renderer::DEFAULT_BACKGROUND_COLOUR,
             'defaulttext' => highlight_renderer::DEFAULT_TEXT_COLOUR,
+            'uniqid' => uniqid(),
         ]);
 
         $mform->addElement('static', 'preview', get_string('preview_heading', 'filter_externalcontent'), $preview);

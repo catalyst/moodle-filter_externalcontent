@@ -118,6 +118,8 @@ class highlight_renderer {
         string $linktext,
         string $href = '#'
     ): string {
+        $backgroundcolour = self::sanitise_colour($backgroundcolour, self::DEFAULT_BACKGROUND_COLOUR);
+        $textcolour = self::sanitise_colour($textcolour, self::DEFAULT_TEXT_COLOUR);
         $labelhtml = self::build_label_html($label, $backgroundcolour, $textcolour);
         $outlinestyle = self::build_outline_style($backgroundcolour);
 
