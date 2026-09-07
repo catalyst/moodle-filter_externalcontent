@@ -49,7 +49,7 @@ class highlights_table extends flexible_table {
             get_string('name', 'filter_externalcontent'),
             get_string('settings:domains', 'filter_externalcontent'),
             get_string('settings:label', 'filter_externalcontent'),
-            get_string('actions'),
+            get_string('actions', 'filter_externalcontent'),
         ]);
 
         $this->setup();
