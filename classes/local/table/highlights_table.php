@@ -72,7 +72,7 @@ class highlights_table extends flexible_table {
      * @return string
      */
     public function col_domains(stdClass $record): string {
-        return html_writer::tag('code', s($record->domains));
+        return html_writer::tag('pre', s($record->domains), ['style' => 'margin:0;']);
     }
 
     /**
