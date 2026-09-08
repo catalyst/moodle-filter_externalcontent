@@ -22,6 +22,9 @@ use moodle_url;
 use pix_icon;
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+require_once("{$CFG->libdir}/tablelib.php");
+
 /**
  * Table listing the configured highlights.
  *

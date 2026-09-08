@@ -48,7 +48,25 @@ class records_manager {
      */
     private function load_data(): void {
         $raw = get_config('filter_externalcontent', self::CONFIG_NAME);
-        $this->data = $raw ? (array) unserialize($raw) : [];
+        if (empty($raw)) {
+            $this->data = [];
+            return;
+        }
+
+        $decoded = @unserialize($raw, ['allowed_classes' => [stdClass::class]]);
+
+        if (!is_array($decoded)) {
+            debugging(
+                'Corrupt ' . self::CONFIG_NAME . ' config value, resetting highlights to empty.',
+                DEBUG_DEVELOPER
+            );
+            $this->data = [];
+            return;
+        }
+
+        $this->data = array_filter($decoded, static function ($record) {
+            return $record instanceof stdClass;
+        });
     }
 
     /**
