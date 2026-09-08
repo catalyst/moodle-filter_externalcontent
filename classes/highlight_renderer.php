@@ -14,21 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace filter_externalcontent;
+
 /**
- * Admin settings for the externalcontent filter.
+ * Builds the label/outline markup for a highlight.
+ *
+ * This is shared by text_filter (which decorates real links found in page
+ * content) and edit.php (which uses it to render a live "what will this
+ * look like" preview on the highlight edit form), so both places always stay
+ * visually in sync.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
  * @copyright  2026 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class highlight_renderer {
+    /** @var string default label background colour, used as a fallback when a highlight's colour is missing/invalid. */
+    const DEFAULT_BACKGROUND_COLOUR = '#f0ad4e';
 
-defined('MOODLE_INTERNAL') || die();
-
-if ($ADMIN->fulltree) {
-    $settings->add(new \filter_externalcontent\admin_setting_managehighlights(
-        'filter_externalcontent/managehighlights',
-        get_string('manage_heading', 'filter_externalcontent'),
-        ''
-    ));
+    /** @var string default label text colour, used as a fallback when a highlight's colour is missing/invalid. */
+    const DEFAULT_TEXT_COLOUR = '#ffffff';
 }
