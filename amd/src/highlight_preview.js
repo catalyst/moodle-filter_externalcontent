@@ -85,7 +85,7 @@ export const init = (previewId, defaults) => {
     });
 
     // Add event listener for colour picker widget.
-    document.addEventListener('click', (e) => {
+    form.addEventListener('click', (e) => {
         if (e.target.closest('.admin_colourpicker img.colourdialogue')) {
             window.setTimeout(update, 0);
         }

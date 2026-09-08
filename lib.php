@@ -23,7 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
 use filter_externalcontent\local\table\highlights_table;
 use filter_externalcontent\records_manager;
 
