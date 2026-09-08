@@ -16,21 +16,26 @@
 
 namespace filter_externalcontent\local\form;
 
+use context;
+use context_system;
+use core_form\dynamic_form;
 use filter_externalcontent\highlight_renderer;
-use moodleform;
+use filter_externalcontent\records_manager;
+use moodle_url;
+use stdClass;
 
 /**
- * Form used to create/edit a single highlight.
+ * Form used to create/edit a single highlight, rendered inside a modal via
+ * core_form/modalform (see amd/src/manage_highlights.js).
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
  * @copyright  2026 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class edit extends moodleform {
+class edit extends dynamic_form {
     #[\Override]
     public function definition() {
-        global $OUTPUT;
         require_once(__DIR__ . '/colourpicker_element.php');
         \MoodleQuickForm::registerElementType(
             'filter_externalcontent_colourpicker',
@@ -82,15 +87,32 @@ class edit extends moodleform {
         $mform->addHelpButton('backgroundcolour', 'settings:backgroundcolour', 'filter_externalcontent');
         $mform->setDefault('backgroundcolour', highlight_renderer::DEFAULT_BACKGROUND_COLOUR);
 
-        $this->add_action_buttons();
+        $mform->addElement('static', 'preview', get_string('preview_heading', 'filter_externalcontent'), '');
 
-        $preview = $OUTPUT->render_from_template('filter_externalcontent/highlight_preview', [
+        if ($this->_ajaxformdata === null) {
+            $this->add_action_buttons();
+        }
+    }
+
+    #[\Override]
+    public function render() {
+        $this->_form->getElement('preview')->setText($this->render_preview());
+
+        return parent::render();
+    }
+
+    /**
+     * Build the live preview markup.
+     *
+     * @return string
+     */
+    protected function render_preview(): string {
+        global $OUTPUT;
+
+        return $OUTPUT->render_from_template('filter_externalcontent/highlight_preview', [
             'defaultbackground' => highlight_renderer::DEFAULT_BACKGROUND_COLOUR,
             'defaulttext' => highlight_renderer::DEFAULT_TEXT_COLOUR,
-            'uniqid' => uniqid(),
         ]);
-
-        $mform->addElement('static', 'preview', get_string('preview_heading', 'filter_externalcontent'), $preview);
     }
 
     /**
@@ -114,5 +136,64 @@ class edit extends moodleform {
         }
 
         return $errors;
+    }
+
+    /**
+     * Returns context where this form is used.
+     *
+     * @return context
+     */
+    protected function get_context_for_dynamic_submission(): context {
+        return context_system::instance();
+    }
+
+    /**
+     * Check if current user has access to this form, otherwise throws exception.
+     */
+    protected function check_access_for_dynamic_submission(): void {
+        require_capability('moodle/site:config', $this->get_context_for_dynamic_submission());
+    }
+
+    /**
+     * Process the form submission, used if form was submitted via AJAX.
+     *
+     * @return stdClass the saved record, so the caller JS can refresh the table.
+     */
+    public function process_dynamic_submission(): stdClass {
+        $data = $this->get_data();
+
+        $manager = new records_manager();
+        $data->id = $manager->save($data);
+
+        return $data;
+    }
+
+    /**
+     * Load in existing data as form defaults.
+     */
+    public function set_data_for_dynamic_submission(): void {
+        $id = $this->optional_param('id', '', PARAM_ALPHANUM);
+
+        $record = new stdClass();
+        $record->id = '';
+
+        if ($id !== '') {
+            $manager = new records_manager();
+            $record = $manager->get($id);
+            if (empty($record)) {
+                throw new \moodle_exception('not_found', 'filter_externalcontent');
+            }
+        }
+
+        $this->set_data($record);
+    }
+
+    /**
+     * Returns url to set in $PAGE->set_url() when form is being rendered or submitted via AJAX.
+     *
+     * @return moodle_url
+     */
+    protected function get_page_url_for_dynamic_submission(): moodle_url {
+        return new moodle_url('/admin/settings.php', ['section' => 'filtersettingexternalcontent']);
     }
 }

@@ -53,4 +53,11 @@ switch ($action) {
         throw new moodle_exception('invalidaction', 'error');
 }
 
+$isajax = strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest';
+if ($isajax) {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true]);
+    exit;
+}
+
 redirect($manageurl);

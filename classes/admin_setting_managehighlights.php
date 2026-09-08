@@ -57,21 +57,26 @@ class admin_setting_managehighlights extends admin_setting_description {
      * @return string
      */
     protected function render_manage_ui(): string {
-        $manager = new records_manager();
-        $addurl = new moodle_url('/filter/externalcontent/edit.php');
+        global $PAGE;
 
-        // A plain link styled as a button, not $OUTPUT->single_button(): the
-        // latter renders its own <form>, which breaks once nested inside the
-        // settings page's own outer <form>.
+        $manager = new records_manager();
+        $context = \context_system::instance();
+
+        $addurl = new moodle_url('/filter/externalcontent/edit.php');
         $html = \html_writer::link($addurl, get_string('add_highlight', 'filter_externalcontent'), [
             'class' => 'btn btn-primary mb-3',
+            'data-action' => 'add-highlight',
         ]);
 
         $table = new highlights_table('filter_externalcontent_settings_highlights');
 
         ob_start();
         $table->display_records($manager->get_all());
-        $html .= ob_get_clean();
+        $tablehtml = ob_get_clean();
+
+        $html .= \html_writer::div($tablehtml, '', ['id' => 'filter-externalcontent-highlights-table']);
+
+        $PAGE->requires->js_call_amd('filter_externalcontent/manage_highlights', 'init', [$context->id]);
 
         return $html;
     }

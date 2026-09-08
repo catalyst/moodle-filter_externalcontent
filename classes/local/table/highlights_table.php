@@ -104,12 +104,21 @@ class highlights_table extends flexible_table {
                 'action' => 'toggle',
                 'sesskey' => sesskey(),
             ]),
-            new pix_icon('t/' . $toggleaction, $toggletitle)
+            new pix_icon('t/' . $toggleaction, $toggletitle),
+            null,
+            [
+                'data-action' => 'toggle-highlight',
+            ]
         );
 
         $buttons[] = $OUTPUT->action_icon(
             new moodle_url('/filter/externalcontent/edit.php', ['id' => $record->id]),
-            new pix_icon('t/edit', get_string('edit'))
+            new pix_icon('t/edit', get_string('edit')),
+            null,
+            [
+                'data-action' => 'edit-highlight',
+                'data-id' => $record->id,
+            ]
         );
 
         $buttons[] = $OUTPUT->action_icon(
@@ -121,14 +130,12 @@ class highlights_table extends flexible_table {
             new pix_icon('t/delete', get_string('delete')),
             null,
             [
-                'data-modal' => 'confirmation',
-                'data-modal-title-str' => json_encode(['delete_heading', 'filter_externalcontent']),
-                'data-modal-content-str' => json_encode(['delete_confirm', 'filter_externalcontent', $record->name]),
-                'data-modal-yes-button-str' => json_encode(['delete', 'core']),
+                'data-action' => 'delete-highlight',
+                'data-highlight-name' => $record->name,
             ]
         );
 
-        return html_writer::tag('nobr', implode(' ', $buttons));
+        return html_writer::tag('span', implode(' ', $buttons), ['style' => 'white-space: nowrap;']);
     }
 
     /**
