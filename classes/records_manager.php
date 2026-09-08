@@ -31,7 +31,7 @@ use stdClass;
  */
 class records_manager {
     /** @var string name of the config value the highlights are stored under. */
-    const CONFIG_NAME = 'highlights';
+    const CONFIG_NAME = 'filter_externalcontent_highlights';
 
     /** @var stdClass[] highlight records, keyed by id. */
     private $data;

@@ -79,6 +79,11 @@ const showForm = (trigger, id, contextId) => {
 const performAction = (url) => fetch(url, {
     credentials: 'same-origin',
     headers: {'X-Requested-With': 'XMLHttpRequest'},
+}).then((response) => {
+    if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+    }
+    return response;
 });
 
 /**
@@ -105,13 +110,16 @@ const deleteHighlight = (trigger, contextId) => {
         Str.get_string('delete_confirm', 'filter_externalcontent', trigger.dataset.highlightName),
         Str.get_string('delete', 'core'),
         {triggerElement: trigger},
-    )
-        .then(() => performAction(trigger.href))
-        .then(() => refreshTable(contextId))
-        .catch(() => {
-            // Rejection means the user cancelled the confirmation dialogue.
-            return;
-        });
+    ).then(() => {
+        // Only errors from the actual delete + refresh should be reported;
+        // a rejection from deleteCancelPromise above (user cancelled) is
+        // swallowed by the outer catch below.
+        return performAction(trigger.href).then(() => refreshTable(contextId));
+    }).catch((e) => {
+        if (e instanceof Error) {
+            Notification.exception(e);
+        }
+    });
 };
 
 /**
