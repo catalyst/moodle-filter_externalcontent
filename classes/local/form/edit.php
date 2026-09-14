@@ -94,11 +94,13 @@ class edit extends dynamic_form {
         }
     }
 
-    #[\Override]
-    public function render() {
+    /**
+     * display live preview after form creation.
+     *
+     * @return void
+     */
+    public function definition_after_data(): void {
         $this->_form->getElement('preview')->setText($this->render_preview());
-
-        return parent::render();
     }
 
     /**
