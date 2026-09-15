@@ -31,10 +31,10 @@ namespace filter_externalcontent;
  */
 class highlight_renderer {
     /** @var string default label background colour, used as a fallback when a highlight's colour is missing/invalid. */
-    const DEFAULT_BACKGROUND_COLOUR = '#f0ad4e';
+    public const DEFAULT_BACKGROUND_COLOUR = '#f0ad4e';
 
     /** @var string default label text colour, used as a fallback when a highlight's colour is missing/invalid. */
-    const DEFAULT_TEXT_COLOUR = '#ffffff';
+    public const DEFAULT_TEXT_COLOUR = '#ffffff';
 
     /**
      * Validate a configured colour value, falling back to a default if it is
