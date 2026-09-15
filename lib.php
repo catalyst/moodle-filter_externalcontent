@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Admin settings for the externalcontent filter.
+ * Library functions for filter_externalcontent.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
@@ -23,12 +23,24 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+use filter_externalcontent\local\table\highlights_table;
+use filter_externalcontent\records_manager;
 
-if ($ADMIN->fulltree) {
-    $settings->add(new \filter_externalcontent\admin_setting_managehighlights(
-        'filter_externalcontent/managehighlights',
-        get_string('manage_heading', 'filter_externalcontent'),
-        ''
-    ));
+/**
+ * Fragment to load the highlight table.
+ *
+ * @param array $args must contain 'context', added automatically by the
+ *                     core_get_fragment web service.
+ * @return string
+ */
+function filter_externalcontent_output_fragment_highlights_table(array $args): string {
+    $context = $args['context'] ?? context_system::instance();
+    require_capability('moodle/site:config', $context);
+
+    $manager = new records_manager();
+    $table = new highlights_table('filter_externalcontent_settings_highlights');
+
+    ob_start();
+    $table->display_records($manager->get_all());
+    return ob_get_clean();
 }

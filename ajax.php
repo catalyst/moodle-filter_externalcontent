@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Admin settings for the externalcontent filter.
+ * Dedicated AJAX endpoint for the highlight row actions (toggle enabled
+ * state, delete), called from amd/src/manage_highlights.js.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
@@ -23,12 +24,27 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+use filter_externalcontent\records_manager;
 
-if ($ADMIN->fulltree) {
-    $settings->add(new \filter_externalcontent\admin_setting_managehighlights(
-        'filter_externalcontent/managehighlights',
-        get_string('manage_heading', 'filter_externalcontent'),
-        ''
-    ));
-}
+define('AJAX_SCRIPT', true);
+
+require(__DIR__ . '/../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
+
+$id = required_param('id', PARAM_ALPHANUM);
+$action = required_param('action', PARAM_ALPHA);
+
+$PAGE->set_url(new moodle_url('/filter/externalcontent/ajax.php', ['id' => $id, 'action' => $action]));
+$PAGE->set_context(context_system::instance());
+
+require_login();
+require_capability('moodle/site:config', context_system::instance());
+require_sesskey();
+
+echo $OUTPUT->header(); // Send headers, using core_renderer_ajax (see AJAX_SCRIPT above).
+
+$manager = new records_manager();
+$manager->perform_action($id, $action);
+
+echo json_encode(['success' => true]);
+die();
