@@ -160,4 +160,56 @@ final class records_manager_test extends advanced_testcase {
         $reloaded = new records_manager();
         $this->assertNotNull($reloaded->get($id));
     }
+
+    /**
+     * Test perform_action('toggle', ...) flips the enabled state.
+     */
+    public function test_perform_action_toggle_flips_the_enabled_state(): void {
+        $this->resetAfterTest();
+
+        $manager = new records_manager();
+        $id = $manager->save($this->make_record(['enabled' => 1]));
+
+        $manager->perform_action($id, 'toggle');
+        $this->assertSame(0, (int) $manager->get($id)->enabled);
+    }
+
+    /**
+     * Test perform_action('delete', ...) removes the record.
+     */
+    public function test_perform_action_delete_removes_the_record(): void {
+        $this->resetAfterTest();
+
+        $manager = new records_manager();
+        $id = $manager->save($this->make_record());
+
+        $manager->perform_action($id, 'delete');
+
+        $this->assertNull($manager->get($id));
+    }
+
+    /**
+     * Test perform_action() throws for an unknown record id.
+     */
+    public function test_perform_action_throws_for_unknown_id(): void {
+        $this->resetAfterTest();
+
+        $manager = new records_manager();
+
+        $this->expectException(\moodle_exception::class);
+        $manager->perform_action('doesnotexist', 'toggle');
+    }
+
+    /**
+     * Test perform_action() throws for an unsupported action.
+     */
+    public function test_perform_action_throws_for_invalid_action(): void {
+        $this->resetAfterTest();
+
+        $manager = new records_manager();
+        $id = $manager->save($this->make_record());
+
+        $this->expectException(\moodle_exception::class);
+        $manager->perform_action($id, 'not-a-real-action');
+    }
 }

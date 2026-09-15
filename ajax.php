@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Perform a simple action (toggle enabled state, delete) on a highlight.
+ * Dedicated AJAX endpoint for the highlight row actions (toggle enabled
+ * state, delete), called from amd/src/manage_highlights.js.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
@@ -25,39 +26,25 @@
 
 use filter_externalcontent\records_manager;
 
+define('AJAX_SCRIPT', true);
+
 require(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 $id = required_param('id', PARAM_ALPHANUM);
 $action = required_param('action', PARAM_ALPHA);
 
+$PAGE->set_url(new moodle_url('/filter/externalcontent/ajax.php', ['id' => $id, 'action' => $action]));
+$PAGE->set_context(context_system::instance());
+
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 require_sesskey();
 
-$manageurl = new moodle_url('/admin/settings.php', ['section' => 'filtersettingexternalcontent']);
+echo $OUTPUT->header(); // Send headers, using core_renderer_ajax (see AJAX_SCRIPT above).
 
 $manager = new records_manager();
-if (empty($manager->get($id))) {
-    throw new moodle_exception('not_found', 'filter_externalcontent', $manageurl);
-}
+$manager->perform_action($id, $action);
 
-switch ($action) {
-    case 'toggle':
-        $manager->toggle($id);
-        break;
-    case 'delete':
-        $manager->delete($id);
-        break;
-    default:
-        throw new moodle_exception('invalidaction', 'error');
-}
-
-$isajax = strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest';
-if ($isajax) {
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true]);
-    exit;
-}
-
-redirect($manageurl);
+echo json_encode(['success' => true]);
+die();

@@ -102,11 +102,7 @@ class highlights_table extends flexible_table {
         $toggleaction = !empty($record->enabled) ? 'hide' : 'show';
         $toggletitle = !empty($record->enabled) ? get_string('disable') : get_string('enable');
         $buttons[] = $OUTPUT->action_icon(
-            new moodle_url('/filter/externalcontent/action.php', [
-                'id' => $record->id,
-                'action' => 'toggle',
-                'sesskey' => sesskey(),
-            ]),
+            $this->action_url('toggle', $record->id),
             new pix_icon('t/' . $toggleaction, $toggletitle),
             null,
             [
@@ -125,11 +121,7 @@ class highlights_table extends flexible_table {
         );
 
         $buttons[] = $OUTPUT->action_icon(
-            new moodle_url('/filter/externalcontent/action.php', [
-                'id' => $record->id,
-                'action' => 'delete',
-                'sesskey' => sesskey(),
-            ]),
+            $this->action_url('delete', $record->id),
             new pix_icon('t/delete', get_string('delete')),
             null,
             [
@@ -139,6 +131,21 @@ class highlights_table extends flexible_table {
         );
 
         return html_writer::tag('span', implode(' ', $buttons), ['style' => 'white-space: nowrap;']);
+    }
+
+    /**
+     * Build the ajax.php url for a given row action.
+     *
+     * @param string $action 'toggle' or 'delete'.
+     * @param string $id
+     * @return moodle_url
+     */
+    protected function action_url(string $action, string $id): moodle_url {
+        return new moodle_url('/filter/externalcontent/ajax.php', [
+            'id' => $id,
+            'action' => $action,
+            'sesskey' => sesskey(),
+        ]);
     }
 
     /**

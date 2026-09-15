@@ -152,4 +152,28 @@ class records_manager {
             $this->save_data();
         }
     }
+
+    /**
+     * Validate and perform one of the simple row actions ('toggle', 'delete') on a highlight record.
+     *
+     * @param string $id
+     * @param string $action 'toggle' or 'delete'.
+     * @throws \moodle_exception if the record doesn't exist or the action is not supported.
+     */
+    public function perform_action(string $id, string $action): void {
+        if (empty($this->get($id))) {
+            throw new \moodle_exception('not_found', 'filter_externalcontent');
+        }
+
+        switch ($action) {
+            case 'toggle':
+                $this->toggle($id);
+                break;
+            case 'delete':
+                $this->delete($id);
+                break;
+            default:
+                throw new \moodle_exception('invalidaction', 'error');
+        }
+    }
 }

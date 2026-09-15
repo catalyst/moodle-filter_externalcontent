@@ -15,7 +15,7 @@
 
 /**
  * Opens the highlight add/edit form in a modal and performs the
- * toggle/delete row actions via fetch() to action.php, refreshing the
+ * toggle/delete row actions via fetch() to ajax.php, refreshing the
  * highlights table fragment (see lib.php) after each of these, without a
  * full page reload.
  *
@@ -70,20 +70,23 @@ const showForm = (trigger, id, contextId) => {
 };
 
 /**
- * Call the given action.php link via fetch(), identifying the request as
- * AJAX so action.php can skip its redirect (see action.php for details).
+ * Call the given ajax.php url via fetch() and parse its JSON response.
  *
  * @param {String} url
  * @return {Promise}
  */
 const performAction = (url) => fetch(url, {
     credentials: 'same-origin',
-    headers: {'X-Requested-With': 'XMLHttpRequest'},
 }).then((response) => {
     if (!response.ok) {
         throw new Error(`${response.status} ${response.statusText}`);
     }
-    return response;
+    return response.json();
+}).then((data) => {
+    if (data.error) {
+        throw new Error(data.error);
+    }
+    return data;
 });
 
 /**
