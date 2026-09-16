@@ -3,15 +3,13 @@ A Moodle filter plugin to visually highlight external URLs that match a configur
 
 ## What it does
 
-The filter scans rendered text for `<a href="...">` links. If a link's host matches
-one of the domains configured in an enabled **highlight**, the link is wrapped,
-together with a small coloured label (e.g. `External`), inside a single outlined box
-(`outline: 2px solid <colour>; padding-right: 4px;`), so the label and the URL
-appear as one highlighted block rather than two separate touching boxes.
+The filter emits CSS rules for configured highlights. Each rule matches rendered
+elements whose `href`, `src` or `data` attribute contains one of the configured
+domain values and applies an outline (`outline: 2px solid <colour>`).
 
 You can configure any number of highlights, each with its own set of domains,
 colours and label, so different groups of external sites can be flagged
-differently (e.g. a red "Partner" box and a blue "Vendor" box).
+differently.
 
 ## Installation
 
@@ -40,10 +38,10 @@ Each highlight has the following fields:
 - **Enabled**: whether this highlight is currently active.
 - **Domains to highlight**: one domain per line, e.g. `example.com`. Prefix an
   entry with `*.` to also match its subdomains, e.g. `*.example.com`.
-- **Label text**: the text displayed in the label (default `External`).
+- **Label text**: kept for compatibility with existing configurations.
 - **Label background colour**: the label's background colour, also used for the
   box outline (default `#f0ad4e`).
 - **Label text colour**: the label's text colour (default `#ffffff`).
 
-If a link's host matches more than one enabled highlight, the first matching
-highlight (in the order they were created) is applied.
+If a URL matches more than one enabled highlight, multiple outline rules may
+apply and standard CSS cascade/order decides the final appearance.

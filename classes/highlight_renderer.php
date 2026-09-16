@@ -16,13 +16,10 @@
 
 namespace filter_externalcontent;
 
+use stdClass;
+
 /**
- * Builds the label/outline markup for a highlight.
- *
- * This is shared by text_filter (which decorates real links found in page
- * content) and edit.php (which uses it to render a live "what will this
- * look like" preview on the highlight edit form), so both places always stay
- * visually in sync.
+ * Builds CSS for external-content highlighting.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
@@ -37,44 +34,6 @@ class highlight_renderer {
     public const DEFAULT_TEXT_COLOUR = '#ffffff';
 
     /**
-     * Validate a configured colour value, falling back to a default if it is
-     * not a valid CSS hex colour.
-     *
-     * @param mixed $value
-     * @param string $default
-     * @return string
-     */
-    public static function sanitise_colour($value, string $default): string {
-        $value = trim((string) $value);
-        if ($value !== '' && preg_match('/^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', $value)) {
-            return $value;
-        }
-
-        return $default;
-    }
-
-    /**
-     * Build the label markup for a highlight or an empty string if the
-     * indicator is disabled or the label text is empty.
-     *
-     * @param string $label the label text.
-     * @param string $backgroundcolour a valid CSS hex colour.
-     * @param string $textcolour a valid CSS hex colour.
-     * @return string
-     */
-    public static function build_label_html(string $label, string $backgroundcolour, string $textcolour): string {
-        $label = trim($label);
-        if ($label === '') {
-            return '';
-        }
-
-        return \html_writer::tag('span', s($label), [
-                'class' => 'filter-externalcontent-label',
-                'style' => self::build_label_style($backgroundcolour, $textcolour),
-        ]);
-    }
-
-    /**
      * Build the CSS style applied to the label span itself, without the
      * wrapping <span> tag, so callers that need to attach extra attributes
      * (e.g. an id for JS to update live, such as the edit form preview) can
@@ -85,89 +44,136 @@ class highlight_renderer {
      * @return string
      */
     public static function build_label_style(string $backgroundcolour, string $textcolour): string {
-        return sprintf('background-color:%s;color:%s;padding: 1px 4px 1px 2px;', $backgroundcolour, $textcolour);
+        return sprintf('background-color:%s;color:%s;padding:0 4px 0 2px;', $backgroundcolour, $textcolour);
     }
 
     /**
-     * Build the outline style applied to the wrapping span of a highlighted
-     * link.
+     * Parse a highlight's raw newline-separated 'domains' setting into an
+     * exact list and a wildcard list ('*.' prefix, stored without it).
      *
-     * padding-right:4px is a cosmetic tweak specific to anchors: since the
-     * label is placed inline right before the link text, there is already
-     * natural spacing on the left, but the outline would otherwise sit
-     * flush against the last character of the link text on the right. This
-     * is not needed for media elements (see build_media_outline_style()).
-     *
-     * @param string $backgroundcolour a valid CSS hex colour.
-     * @return string
+     * @param string $raw the raw 'domains' setting value, one domain per line.
+     * @return array{exact: string[], wildcard: string[]}
      */
-    public static function build_outline_style(string $backgroundcolour): string {
-        return sprintf('outline:2px solid %s;padding-right:4px;', $backgroundcolour);
+    public static function parse_domains(string $raw): array {
+        $exact = [];
+        $wildcard = [];
+
+        foreach (preg_split('/[\r\n]+/', $raw) as $line) {
+            $line = trim(strtolower($line));
+            if ($line === '') {
+                continue;
+            }
+            if (strpos($line, '*.') === 0) {
+                $wildcard[] = substr($line, 2);
+            } else {
+                $exact[] = $line;
+            }
+        }
+
+        return ['exact' => $exact, 'wildcard' => $wildcard];
     }
 
     /**
-     * Build the outline style merged into a highlighted media element's own
-     * style (image, iframe, embed, video). Unlike build_outline_style()
-     * (used for anchors), this deliberately omits padding-right:4px, which
-     * exists only to give some breathing room before wrapped link text and
-     * is not relevant to a media element's own box.
+     * Escape a value for safe use inside a double-quoted CSS string, e.g.
+     * a ::before content string.
      *
-     * @param string $backgroundcolour a valid CSS hex colour.
+     * @param string $value
      * @return string
      */
-    public static function build_media_outline_style(string $backgroundcolour): string {
-        return sprintf('outline:2px solid %s;', $backgroundcolour);
+    public static function escape_css_string(string $value): string {
+        return str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
     }
 
     /**
-     * Build the wrapper style used around a highlighted media element
-     * (image, iframe, embed, video) that is laid out normally (i.e. not
-     * relying on being absolutely positioned by an ancestor). The wrapper
-     * establishes a positioning context so the label can be overlaid on top
-     * of the element (see build_overlay_label_style()).
+     * Build selector-driven CSS for one highlight record.
      *
-     * @return string
-     */
-    public static function build_media_wrapper_style(): string {
-        return 'display:block;position:relative;line-height:0;';
-    }
-
-    /**
-     * Build the label markup for a highlighted media element (image,
-     * iframe, embed, video), overlaid on its top-left corner, or an empty
-     * string if the label text is empty.
+     * The rules match rendered elements by URL directly, so text_filter does
+     * not need to mutate page HTML. Any visible element with href/src/data
+     * containing a configured value is outlined.
      *
-     * @param string $label the label text.
-     * @param string $backgroundcolour a valid CSS hex colour.
-     * @param string $textcolour a valid CSS hex colour.
-     * @return string
+     * @param stdClass $record a raw highlight record (see records_manager).
+     * @return string CSS, or '' if no domains are configured.
      */
-    public static function build_overlay_label_html(string $label, string $backgroundcolour, string $textcolour): string {
-        $label = trim($label);
-        if ($label === '') {
+    public static function build_css_for_record(stdClass $record): string {
+        $selectors = self::build_selector_list_for_record($record);
+        if (empty($selectors)) {
             return '';
         }
 
-        return \html_writer::tag('span', s($label), [
-                'class' => 'filter-externalcontent-label filter-externalcontent-label-overlay',
-                'style' => self::build_overlay_label_style($backgroundcolour, $textcolour),
-        ]);
+        $backgroundcolour = trim((string) ($record->backgroundcolour ?? '')) ?: self::DEFAULT_BACKGROUND_COLOUR;
+        $textcolour = trim((string) ($record->textcolour ?? '')) ?: self::DEFAULT_TEXT_COLOUR;
+        $selectorblock = implode(",\n", $selectors);
+
+        $css = sprintf("%s {\n    outline:2px solid %s;\n    padding-right:4px;\n}\n", $selectorblock, $backgroundcolour);
+
+        $label = trim((string) ($record->label ?? ''));
+        if ($label !== '') {
+            $beforeselectorblock = implode(",\n", array_map(static function (string $selector): string {
+                return $selector . '::before';
+            }, $selectors));
+            $css .= sprintf(
+                "%s {\n    content:\"%s\";\n    margin-right:4px;\n    %s\n    display:inline-block;\n}\n",
+                $beforeselectorblock,
+                self::escape_css_string($label),
+                self::build_label_style($backgroundcolour, $textcolour)
+            );
+        }
+
+        return $css;
     }
 
     /**
-     * Build the CSS style applied to an overlaid media label span itself,
-     * without the wrapping <span> tag (see build_overlay_label_html()).
+     * Build all URL-match selectors for one record.
      *
-     * @param string $backgroundcolour a valid CSS hex colour.
-     * @param string $textcolour a valid CSS hex colour.
-     * @return string
+     * @param stdClass $record
+     * @return string[]
      */
-    public static function build_overlay_label_style(string $backgroundcolour, string $textcolour): string {
-        return sprintf(
-            'position:absolute;top:0;left:0;z-index:1;font-size:0.75em;line-height:1.4;' .
-            'background-color:%s;color:%s;padding: 1px 4px 1px 2px;',
-            $backgroundcolour,
-            $textcolour
-        );
+    protected static function build_selector_list_for_record(stdClass $record): array {
+        $domains = self::parse_domains((string) ($record->domains ?? ''));
+        $values = array_unique(array_merge($domains['exact'], $domains['wildcard']));
+
+        $selectors = [];
+        foreach ($values as $value) {
+            $value = trim($value);
+            if ($value === '') {
+                continue;
+            }
+            $needle = self::escape_css_string($value);
+            $selectors[] = ':not(link):not(base):not(meta)[href*="' . $needle . '" i]';
+            $selectors[] = ':not(script):not(link):not(base):not(meta)[src*="' . $needle . '" i]';
+            $selectors[] = ':not(link):not(base):not(meta)[data*="' . $needle . '" i]';
+        }
+
+        return array_values(array_unique($selectors));
+    }
+
+    /**
+     * Build runtime data used by JS to inject labels for replaced elements
+     * (e.g. <img>), which cannot render ::before content reliably.
+     *
+     * @param stdClass $record
+     * @return array<string, mixed>|null
+     */
+    public static function build_label_runtime_data(stdClass $record): ?array {
+        $label = trim((string) ($record->label ?? ''));
+        if ($label === '') {
+            return null;
+        }
+
+        $domains = self::parse_domains((string) ($record->domains ?? ''));
+        $values = array_values(array_unique(array_merge($domains['exact'], $domains['wildcard'])));
+        if (empty($values)) {
+            return null;
+        }
+
+        $backgroundcolour = trim((string) ($record->backgroundcolour ?? '')) ?: self::DEFAULT_BACKGROUND_COLOUR;
+        $textcolour = trim((string) ($record->textcolour ?? '')) ?: self::DEFAULT_TEXT_COLOUR;
+
+        return [
+            'values' => $values,
+            'label' => $label,
+            'backgroundcolour' => $backgroundcolour,
+            'textcolour' => $textcolour,
+        ];
     }
 }
