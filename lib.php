@@ -56,6 +56,11 @@ function filter_externalcontent_output_fragment_highlights_table(array $args): s
 function filter_externalcontent_before_standard_top_of_body_html(): string {
     global $PAGE;
 
+    $systemcontext = context_system::instance();
+    if (!has_capability('filter/externalcontent:view', $systemcontext)) {
+        return '';
+    }
+
     $manager = new records_manager();
 
     $css = '';

@@ -34,6 +34,7 @@ final class lib_test extends advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         require_once(__DIR__ . '/../lib.php');
+        $this->setAdminUser();
     }
 
     /**
@@ -118,5 +119,34 @@ final class lib_test extends advanced_testcase {
 
         $this->assertStringContainsString('[href*="example.com" i]', $html);
         $this->assertStringContainsString('[href*="other.com" i]', $html);
+    }
+
+    /**
+     * Ensure users without the view capability do not get output.
+     */
+    public function test_user_without_view_capability_gets_no_output(): void {
+        $this->resetAfterTest();
+        $this->create_highlight();
+        $this->setUser($this->getDataGenerator()->create_user());
+
+        $this->assertSame('', filter_externalcontent_before_standard_top_of_body_html());
+    }
+
+    /**
+     * Ensure users with the view capability get output.
+     */
+    public function test_user_with_view_capability_gets_output(): void {
+        $this->resetAfterTest();
+        $this->create_highlight();
+
+        $user = $this->getDataGenerator()->create_user();
+        $roleid = create_role('Externalcontent viewer', 'externalcontentviewer', 'Can view external content highlights');
+        assign_capability('filter/externalcontent:view', CAP_ALLOW, $roleid, \context_system::instance()->id, true);
+        role_assign($roleid, $user->id, \context_system::instance()->id);
+        accesslib_clear_all_caches_for_unit_testing();
+        $this->setUser($user);
+
+        $html = filter_externalcontent_before_standard_top_of_body_html();
+        $this->assertStringContainsString('<style id="filter-externalcontent-anchor-css">', $html);
     }
 }

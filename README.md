@@ -32,6 +32,9 @@ highlights is shown directly on that settings page:
 (Add/edit still use their own separate page, since a settings page is a
 single form and can't contain another form nested inside it.)
 
+Display is permission-based using the standard capability
+`filter/externalcontent:view` (managed via Moodle roles/permissions).
+
 Each highlight has the following fields:
 
 - **Name**: an internal label to help you identify the highlight in the list.
