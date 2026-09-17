@@ -102,9 +102,8 @@ final class lib_test extends advanced_testcase {
         $this->assertStringContainsString('<style id="filter-externalcontent-anchor-css">', $html);
         $this->assertStringContainsString('[href*="example.com" i]', $html);
         $this->assertStringContainsString('outline:2px solid #f0ad4e;', $html);
-        $this->assertStringContainsString('content:"External";', $html);
-        $this->assertStringContainsString('.filter-externalcontent-labelled-resource', $html);
-        $this->assertStringContainsString('--filter-externalcontent-colour', $html);
+        $this->assertStringContainsString('border-left:', $html);
+        $this->assertStringContainsString('background-image:url("data:image/svg+xml,', $html);
     }
 
     /**
@@ -140,8 +139,18 @@ final class lib_test extends advanced_testcase {
         $this->create_highlight();
 
         $user = $this->getDataGenerator()->create_user();
-        $roleid = create_role('Externalcontent viewer', 'externalcontentviewer', 'Can view external content highlights');
-        assign_capability('filter/externalcontent:view', CAP_ALLOW, $roleid, \context_system::instance()->id, true);
+        $roleid = create_role(
+            'Externalcontent viewer',
+            'externalcontentviewer',
+            'Can view external content highlights'
+        );
+        assign_capability(
+            'filter/externalcontent:view',
+            CAP_ALLOW,
+            $roleid,
+            \context_system::instance()->id,
+            true
+        );
         role_assign($roleid, $user->id, \context_system::instance()->id);
         accesslib_clear_all_caches_for_unit_testing();
         $this->setUser($user);

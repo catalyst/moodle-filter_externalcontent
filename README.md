@@ -4,8 +4,12 @@ A Moodle filter plugin to visually highlight external URLs that match a configur
 ## What it does
 
 The filter emits CSS rules for configured highlights. Each rule matches rendered
-elements whose `href`, `src` or `data` attribute contains one of the configured
-domain values and applies an outline (`outline: 2px solid <colour>`).
+elements whose `href`, `src` or `data` attribute starts with common URL prefixes
+for configured domains (`https://`, `http://`, `//`) and applies an outline
+(`outline: 2px solid <colour>`). Wildcard entries (`*.example.com`) use a
+best-effort token match for subdomains. When a label is configured, the rule
+draws an SVG lane inside the same outline so links and media share the same
+label treatment.
 
 You can configure any number of highlights, each with its own set of domains,
 colours and label, so different groups of external sites can be flagged

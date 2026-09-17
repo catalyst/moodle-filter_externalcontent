@@ -64,11 +64,9 @@ final class highlight_renderer_test extends advanced_testcase {
         $this->assertStringContainsString('[href*="other.com" i]', $css);
         $this->assertStringContainsString('[data*="other.com" i]', $css);
         $this->assertStringContainsString('outline:2px solid #111111;', $css);
-        $this->assertStringContainsString('padding-right:4px;', $css);
-        $this->assertStringContainsString('[href*="example.com" i]::before', $css);
-        $this->assertStringContainsString('content:"External";', $css);
-        $this->assertStringContainsString('background-color:#111111;color:#222222;', $css);
-        $this->assertStringContainsString('margin-right:4px;', $css);
+        $this->assertStringContainsString('border-left:', $css);
+        $this->assertStringContainsString('background-image:url("data:image/svg+xml,', $css);
+        $this->assertStringContainsString('linear-gradient(#111111, #111111)', $css);
     }
 
     /**
@@ -87,7 +85,7 @@ final class highlight_renderer_test extends advanced_testcase {
     }
 
     /**
-     * Ensure no ::before label rules are generated without a label.
+     * Ensure no SVG label lane rules are generated without a label.
      */
     public function test_build_css_for_record_omits_before_rules_without_label(): void {
         $record = (object) [
@@ -101,26 +99,6 @@ final class highlight_renderer_test extends advanced_testcase {
         $css = highlight_renderer::build_css_for_record($record);
 
         $this->assertStringContainsString('outline:2px solid #111111;', $css);
-        $this->assertStringNotContainsString('::before', $css);
-    }
-
-    /**
-     * Ensure runtime data for media labels is generated as expected.
-     */
-    public function test_build_label_runtime_data_returns_label_values_and_styles(): void {
-        $record = (object) [
-            'domains' => "example.com\n*.other.com",
-            'backgroundcolour' => '#111111',
-            'textcolour' => '#222222',
-            'label' => 'External',
-        ];
-
-        $data = highlight_renderer::build_label_runtime_data($record);
-
-        $this->assertNotNull($data);
-        $this->assertSame(['example.com', 'other.com'], $data['values']);
-        $this->assertSame('External', $data['label']);
-        $this->assertSame('#111111', $data['backgroundcolour']);
-        $this->assertSame('#222222', $data['textcolour']);
+        $this->assertStringNotContainsString('background-image:url("data:image/svg+xml,', $css);
     }
 }

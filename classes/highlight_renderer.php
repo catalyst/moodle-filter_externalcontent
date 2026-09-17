@@ -27,25 +27,17 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class highlight_renderer {
-    /** @var string default label background colour, used as a fallback when a highlight's colour is missing/invalid. */
+    /** @var string default label background colour. */
     public const DEFAULT_BACKGROUND_COLOUR = '#f0ad4e';
 
-    /** @var string default label text colour, used as a fallback when a highlight's colour is missing/invalid. */
+    /** @var string default label text colour. */
     public const DEFAULT_TEXT_COLOUR = '#ffffff';
 
-    /**
-     * Build the CSS style applied to the label span itself, without the
-     * wrapping <span> tag, so callers that need to attach extra attributes
-     * (e.g. an id for JS to update live, such as the edit form preview) can
-     * build their own markup while still sharing the same colour styling.
-     *
-     * @param string $backgroundcolour a valid CSS hex colour.
-     * @param string $textcolour a valid CSS hex colour.
-     * @return string
-     */
-    public static function build_label_style(string $backgroundcolour, string $textcolour): string {
-        return sprintf('background-color:%s;color:%s;padding:0 4px 0 2px;', $backgroundcolour, $textcolour);
-    }
+    /** @var int minimum label lane width (px). */
+    private const MIN_LANE_WIDTH_PX = 60;
+
+    /** @var int label lane height (px). */
+    private const BADGE_HEIGHT_PX = 20;
 
     /**
      * Parse a highlight's raw newline-separated 'domains' setting into an
@@ -87,10 +79,6 @@ class highlight_renderer {
     /**
      * Build selector-driven CSS for one highlight record.
      *
-     * The rules match rendered elements by URL directly, so text_filter does
-     * not need to mutate page HTML. Any visible element with href/src/data
-     * containing a configured value is outlined.
-     *
      * @param stdClass $record a raw highlight record (see records_manager).
      * @return string CSS, or '' if no domains are configured.
      */
@@ -100,22 +88,33 @@ class highlight_renderer {
             return '';
         }
 
-        $backgroundcolour = trim((string) ($record->backgroundcolour ?? '')) ?: self::DEFAULT_BACKGROUND_COLOUR;
+        $backgroundcolour = trim((string) ($record->backgroundcolour ?? ''))
+            ?: self::DEFAULT_BACKGROUND_COLOUR;
         $textcolour = trim((string) ($record->textcolour ?? '')) ?: self::DEFAULT_TEXT_COLOUR;
         $selectorblock = implode(",\n", $selectors);
 
-        $css = sprintf("%s {\n    outline:2px solid %s;\n    padding-right:4px;\n}\n", $selectorblock, $backgroundcolour);
+        $css = sprintf("%s {\n    outline:2px solid %s;\n}\n", $selectorblock, $backgroundcolour);
 
         $label = trim((string) ($record->label ?? ''));
         if ($label !== '') {
-            $beforeselectorblock = implode(",\n", array_map(static function (string $selector): string {
-                return $selector . '::before';
-            }, $selectors));
+            $lanewidth = self::measure_label_lane_width($label);
+            $svguri = self::build_svg_data_uri($label, $backgroundcolour, $textcolour, $lanewidth);
             $css .= sprintf(
-                "%s {\n    content:\"%s\";\n    margin-right:4px;\n    %s\n    display:inline-block;\n}\n",
-                $beforeselectorblock,
-                self::escape_css_string($label),
-                self::build_label_style($backgroundcolour, $textcolour)
+                "%s {\n    border:0 solid %s;\n    border-left:%dpx solid transparent;\n" .
+                "    background-image:url(\"%s\"), linear-gradient(%s, %s);\n" .
+                "    background-repeat:no-repeat, no-repeat;\n" .
+                "    background-position:left center, left top;\n" .
+                "    background-size:%dpx %dpx, %dpx 100%%;\n" .
+                "    background-origin:border-box, border-box;\n}\n",
+                $selectorblock,
+                $backgroundcolour,
+                $lanewidth,
+                $svguri,
+                $backgroundcolour,
+                $backgroundcolour,
+                $lanewidth,
+                self::BADGE_HEIGHT_PX,
+                $lanewidth
             );
         }
 
@@ -148,32 +147,50 @@ class highlight_renderer {
     }
 
     /**
-     * Build runtime data used by JS to inject labels for replaced elements
-     * (e.g. <img>), which cannot render ::before content reliably.
+     * Compute lane width from label length.
      *
-     * @param stdClass $record
-     * @return array<string, mixed>|null
+     * @param string $label
+     * @return int
      */
-    public static function build_label_runtime_data(stdClass $record): ?array {
-        $label = trim((string) ($record->label ?? ''));
-        if ($label === '') {
-            return null;
-        }
+    protected static function measure_label_lane_width(string $label): int {
+        $width = (int) ceil(max(0, \core_text::strlen($label)) * 9.5);
+        return max(self::MIN_LANE_WIDTH_PX, $width);
+    }
 
-        $domains = self::parse_domains((string) ($record->domains ?? ''));
-        $values = array_values(array_unique(array_merge($domains['exact'], $domains['wildcard'])));
-        if (empty($values)) {
-            return null;
-        }
+    /**
+     * Build an SVG data URI used as a label lane.
+     *
+     * @param string $label
+     * @param string $backgroundcolour
+     * @param string $textcolour
+     * @param int $width
+     * @return string
+     */
+    protected static function build_svg_data_uri(
+        string $label,
+        string $backgroundcolour,
+        string $textcolour,
+        int $width
+    ): string {
+        $fontfamily = 'Roboto, Helvetica Neue, Arial, sans-serif';
+        $textx = (int) floor(($width - 2) / 2);
+        $svg = sprintf(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d">' .
+                '<rect x="0" y="0" width="%d" height="%d" fill="%s"/>' .
+                '<text x="%d" y="15" text-anchor="middle" font-family="%s" ' .
+                'font-size="16px" fill="%s" style="text-rendering:auto;">%s</text>' .
+            '</svg>',
+            $width,
+            self::BADGE_HEIGHT_PX,
+            $width,
+            self::BADGE_HEIGHT_PX,
+            $backgroundcolour,
+            $textx,
+            $fontfamily,
+            $textcolour,
+            s($label)
+        );
 
-        $backgroundcolour = trim((string) ($record->backgroundcolour ?? '')) ?: self::DEFAULT_BACKGROUND_COLOUR;
-        $textcolour = trim((string) ($record->textcolour ?? '')) ?: self::DEFAULT_TEXT_COLOUR;
-
-        return [
-            'values' => $values,
-            'label' => $label,
-            'backgroundcolour' => $backgroundcolour,
-            'textcolour' => $textcolour,
-        ];
+        return 'data:image/svg+xml,' . rawurlencode($svg);
     }
 }

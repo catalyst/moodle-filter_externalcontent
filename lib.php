@@ -48,14 +48,11 @@ function filter_externalcontent_output_fragment_highlights_table(array $args): s
 
 /**
  * Inject generated CSS rules for every configured highlight once near the top
- * of every page's <body>. The rules target matching href/src/data values
- * directly, so text_filter does not need to mutate any HTML.
+ * of every page's <body>.
  *
  * @return string
  */
 function filter_externalcontent_before_standard_top_of_body_html(): string {
-    global $PAGE;
-
     $systemcontext = context_system::instance();
     if (!has_capability('filter/externalcontent:view', $systemcontext)) {
         return '';
@@ -64,27 +61,12 @@ function filter_externalcontent_before_standard_top_of_body_html(): string {
     $manager = new records_manager();
 
     $css = '';
-    $labelruntime = [];
     foreach ($manager->get_enabled() as $record) {
         $css .= highlight_renderer::build_css_for_record($record);
-        $runtimeitem = highlight_renderer::build_label_runtime_data($record);
-        if ($runtimeitem !== null) {
-            $labelruntime[] = $runtimeitem;
-        }
     }
 
     if ($css === '') {
         return '';
-    }
-
-    if (!empty($labelruntime)) {
-        $css .= ".filter-externalcontent-no-outline{outline:none !important;}\n";
-        $css .= ".filter-externalcontent-labelled-resource{display:inline-block;" .
-                "outline:2px solid var(--filter-externalcontent-colour);}\n";
-        $css .= ".filter-externalcontent-resource-label{margin-right:4px;display:inline-block;";
-        $css .= "background-color:var(--filter-externalcontent-colour);color:var(--filter-externalcontent-textcolour);";
-        $css .= "padding:0 4px 0 2px;}\n";
-        $PAGE->requires->js_call_amd('filter_externalcontent/media_labels', 'init', [$labelruntime]);
     }
 
     return html_writer::tag('style', $css, ['id' => 'filter-externalcontent-anchor-css']);
