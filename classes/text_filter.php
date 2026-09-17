@@ -17,11 +17,18 @@
 namespace filter_externalcontent;
 
 /**
- * Pass-through text filter.
+ * Pass-through text filter for external content highlighting.
  *
- * Highlighting is now purely CSS-driven from
- * filter_externalcontent_before_standard_top_of_body_html() in lib.php, so
- * the filter no longer mutates rendered HTML.
+ * Moodle requires every filter plugin to implement a text_filter class so it can
+ * be installed, discovered, and managed (enabled or disabled) in site administration.
+ *
+ * Rather than using the traditional text-filtering approach of parsing and mutating
+ * rendered HTML strings, this plugin uses a pure CSS solution:
+ *  - This filter returns $text untouched to avoid regex overhead and HTML mutation.
+ *  - Highlighting rules are compiled on the server and injected once per page load via
+ *    filter_externalcontent_before_standard_top_of_body_html() in lib.php.
+ *  - That hook checks the 'filter/externalcontent:view' capability before outputting
+ *    a <style> tag containing CSS attribute selectors targeting matching href/src attributes.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
