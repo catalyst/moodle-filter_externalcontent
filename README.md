@@ -3,15 +3,17 @@ A Moodle filter plugin to visually highlight external URLs that match a configur
 
 ## What it does
 
-The filter scans rendered text for `<a href="...">` links. If a link's host matches
-one of the domains configured in an enabled **highlight**, the link is wrapped,
-together with a small coloured label (e.g. `External`), inside a single outlined box
-(`outline: 2px solid <colour>; padding-right: 4px;`), so the label and the URL
-appear as one highlighted block rather than two separate touching boxes.
+The filter emits CSS rules for configured highlights. Each rule matches rendered
+elements whose `href`, `src` or `data` attribute starts with common URL prefixes
+for configured domains (`https://`, `http://`, `//`) and applies an outline
+(`outline: 2px solid <colour>`). Wildcard entries (`*.example.com`) use a
+best-effort token match for subdomains. When a label is configured, the rule
+draws an SVG lane inside the same outline so links and media share the same
+label treatment.
 
 You can configure any number of highlights, each with its own set of domains,
 colours and label, so different groups of external sites can be flagged
-differently (e.g. a red "Partner" box and a blue "Vendor" box).
+differently.
 
 ## Installation
 
@@ -34,16 +36,19 @@ highlights is shown directly on that settings page:
 (Add/edit still use their own separate page, since a settings page is a
 single form and can't contain another form nested inside it.)
 
+Display is permission-based using the standard capability
+`filter/externalcontent:view` (managed via Moodle roles/permissions).
+
 Each highlight has the following fields:
 
 - **Name**: an internal label to help you identify the highlight in the list.
 - **Enabled**: whether this highlight is currently active.
 - **Domains to highlight**: one domain per line, e.g. `example.com`. Prefix an
   entry with `*.` to also match its subdomains, e.g. `*.example.com`.
-- **Label text**: the text displayed in the label (default `External`).
+- **Label text**: kept for compatibility with existing configurations.
 - **Label background colour**: the label's background colour, also used for the
   box outline (default `#f0ad4e`).
 - **Label text colour**: the label's text colour (default `#ffffff`).
 
-If a link's host matches more than one enabled highlight, the first matching
-highlight (in the order they were created) is applied.
+If a URL matches more than one enabled highlight, multiple outline rules may
+apply and standard CSS cascade/order decides the final appearance.

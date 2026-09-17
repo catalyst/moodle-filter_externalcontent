@@ -23,6 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use filter_externalcontent\highlight_renderer;
 use filter_externalcontent\local\table\highlights_table;
 use filter_externalcontent\records_manager;
 
@@ -43,4 +44,30 @@ function filter_externalcontent_output_fragment_highlights_table(array $args): s
     ob_start();
     $table->display_records($manager->get_all());
     return ob_get_clean();
+}
+
+/**
+ * Inject generated CSS rules for every configured highlight once near the top
+ * of every page's <body>.
+ *
+ * @return string
+ */
+function filter_externalcontent_before_standard_top_of_body_html(): string {
+    $systemcontext = context_system::instance();
+    if (!has_capability('filter/externalcontent:view', $systemcontext)) {
+        return '';
+    }
+
+    $manager = new records_manager();
+
+    $css = '';
+    foreach ($manager->get_enabled() as $record) {
+        $css .= highlight_renderer::build_css_for_record($record);
+    }
+
+    if ($css === '') {
+        return '';
+    }
+
+    return html_writer::tag('style', $css, ['id' => 'filter-externalcontent-anchor-css']);
 }

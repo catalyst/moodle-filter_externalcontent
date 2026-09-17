@@ -23,8 +23,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 $string['actions'] = 'Actions';
 $string['add_breadcrumb'] = 'Add highlight';
 $string['add_heading'] = 'Add highlight';
@@ -35,6 +33,7 @@ $string['edit_breadcrumb'] = 'Edit highlight';
 $string['edit_heading'] = 'Edit highlight';
 $string['enabled'] = 'Enabled';
 $string['error:invalidcolour'] = 'Enter a valid hex colour, e.g. #f0ad4e or #fff.';
+$string['externalcontent:view'] = 'View external content highlighting';
 $string['filtername'] = 'External content highlighter';
 $string['manage_heading'] = 'Manage external content highlights';
 $string['name'] = 'Name';

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information.
+ * Capability definitions for filter_externalcontent.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
@@ -25,9 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026091600;              // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2026091600;              // Match release exactly to version.
-$plugin->requires  = 2024100100;              // Requires this Moodle version (4.5).
-$plugin->component = 'filter_externalcontent';
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->supported = [405, 405];
+$capabilities = [
+    'filter/externalcontent:view' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+];
