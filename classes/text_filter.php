@@ -26,7 +26,7 @@ namespace filter_externalcontent;
  * rendered HTML strings, this plugin uses a pure CSS solution:
  *  - This filter returns $text untouched to avoid regex overhead and HTML mutation.
  *  - Highlighting rules are compiled on the server and injected once per page load via
- *    filter_externalcontent_before_standard_top_of_body_html() in lib.php.
+ *    hook_callbacks::before_standard_top_of_body_html_generation() (see db/hooks.php).
  *  - That hook checks the 'filter/externalcontent:view' capability before outputting
  *    a <style> tag containing CSS attribute selectors targeting matching href/src attributes.
  *

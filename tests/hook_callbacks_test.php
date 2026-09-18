@@ -17,23 +17,24 @@
 namespace filter_externalcontent;
 
 use advanced_testcase;
+use core\hook\output\before_standard_top_of_body_html_generation;
 
 /**
- * Unit tests for filter_externalcontent's lib.php callbacks.
+ * Unit tests for filter_externalcontent's hook callbacks.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
  * @copyright  2026 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers     ::filter_externalcontent_before_standard_top_of_body_html
+ * @covers     \filter_externalcontent\hook_callbacks
  */
-final class lib_test extends advanced_testcase {
+final class hook_callbacks_test extends advanced_testcase {
     /**
-     * Ensure lib.php (holding the callback under test) is loaded.
+     * Ensure the admin user is set up so the view capability check passes
+     * by default.
      */
     protected function setUp(): void {
         parent::setUp();
-        require_once(__DIR__ . '/../lib.php');
         $this->setAdminUser();
     }
 
@@ -59,12 +60,26 @@ final class lib_test extends advanced_testcase {
     }
 
     /**
+     * Helper to run the hook callback and return its resulting output.
+     *
+     * @return string
+     */
+    protected function run_hook(): string {
+        global $PAGE;
+
+        $hook = new before_standard_top_of_body_html_generation($PAGE->get_renderer('core'));
+        hook_callbacks::before_standard_top_of_body_html_generation($hook);
+
+        return $hook->get_output();
+    }
+
+    /**
      * Ensure no style block is rendered when nothing is configured.
      */
     public function test_no_highlights_produces_no_style_block(): void {
         $this->resetAfterTest();
 
-        $this->assertSame('', filter_externalcontent_before_standard_top_of_body_html());
+        $this->assertSame('', $this->run_hook());
     }
 
     /**
@@ -74,7 +89,7 @@ final class lib_test extends advanced_testcase {
         $this->resetAfterTest();
         $this->create_highlight(['enabled' => 0]);
 
-        $this->assertSame('', filter_externalcontent_before_standard_top_of_body_html());
+        $this->assertSame('', $this->run_hook());
     }
 
     /**
@@ -84,7 +99,7 @@ final class lib_test extends advanced_testcase {
         $this->resetAfterTest();
         $this->create_highlight(['domains' => '*.example.com']);
 
-        $html = filter_externalcontent_before_standard_top_of_body_html();
+        $html = $this->run_hook();
 
         $this->assertStringContainsString('[href*="example.com" i]', $html);
         $this->assertStringContainsString('[src*="example.com" i]', $html);
@@ -97,7 +112,7 @@ final class lib_test extends advanced_testcase {
         $this->resetAfterTest();
         $this->create_highlight();
 
-        $html = filter_externalcontent_before_standard_top_of_body_html();
+        $html = $this->run_hook();
 
         $this->assertStringContainsString('<style id="filter-externalcontent-anchor-css">', $html);
         $this->assertStringContainsString('[href*="example.com" i]', $html);
@@ -114,7 +129,7 @@ final class lib_test extends advanced_testcase {
         $this->create_highlight(['domains' => 'example.com', 'label' => 'First']);
         $this->create_highlight(['domains' => 'other.com', 'label' => 'Second']);
 
-        $html = filter_externalcontent_before_standard_top_of_body_html();
+        $html = $this->run_hook();
 
         $this->assertStringContainsString('[href*="example.com" i]', $html);
         $this->assertStringContainsString('[href*="other.com" i]', $html);
@@ -128,7 +143,7 @@ final class lib_test extends advanced_testcase {
         $this->create_highlight();
         $this->setUser($this->getDataGenerator()->create_user());
 
-        $this->assertSame('', filter_externalcontent_before_standard_top_of_body_html());
+        $this->assertSame('', $this->run_hook());
     }
 
     /**
@@ -155,7 +170,7 @@ final class lib_test extends advanced_testcase {
         accesslib_clear_all_caches_for_unit_testing();
         $this->setUser($user);
 
-        $html = filter_externalcontent_before_standard_top_of_body_html();
+        $html = $this->run_hook();
         $this->assertStringContainsString('<style id="filter-externalcontent-anchor-css">', $html);
     }
 }

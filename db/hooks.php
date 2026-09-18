@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information.
+ * Hook callbacks for filter_externalcontent.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
@@ -25,9 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026091601;              // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2026091601;              // Match release exactly to version.
-$plugin->requires  = 2024100100;              // Requires this Moodle version (4.5).
-$plugin->component = 'filter_externalcontent';
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->supported = [405, 405];
+$callbacks = [
+    [
+        'hook' => \core\hook\output\before_standard_top_of_body_html_generation::class,
+        'callback' => '\filter_externalcontent\hook_callbacks::before_standard_top_of_body_html_generation',
+        'priority' => 0,
+    ],
+];
