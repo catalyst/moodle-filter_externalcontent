@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026091600;              // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2026091600;              // Match release exactly to version.
+$plugin->version   = 2026091601;              // The current plugin version (Date: YYYYMMDDXX).
+$plugin->release   = 2026091601;              // Match release exactly to version.
 $plugin->requires  = 2024100100;              // Requires this Moodle version (4.5).
 $plugin->component = 'filter_externalcontent';
 $plugin->maturity  = MATURITY_ALPHA;
