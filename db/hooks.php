@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library functions for filter_externalcontent.
+ * Hook callbacks for filter_externalcontent.
  *
  * @package    filter_externalcontent
  * @author     Guillaume Barat (guillaumebarat@catalyst-au.net)
@@ -23,24 +23,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use filter_externalcontent\local\table\highlights_table;
-use filter_externalcontent\records_manager;
+defined('MOODLE_INTERNAL') || die();
 
-/**
- * Fragment to load the highlight table.
- *
- * @param array $args must contain 'context', added automatically by the
- *                     core_get_fragment web service.
- * @return string
- */
-function filter_externalcontent_output_fragment_highlights_table(array $args): string {
-    $context = $args['context'] ?? context_system::instance();
-    require_capability('moodle/site:config', $context);
-
-    $manager = new records_manager();
-    $table = new highlights_table('filter_externalcontent_settings_highlights');
-
-    ob_start();
-    $table->display_records($manager->get_all());
-    return ob_get_clean();
-}
+$callbacks = [
+    [
+        'hook' => \core\hook\output\before_standard_top_of_body_html_generation::class,
+        'callback' => '\filter_externalcontent\hook_callbacks::before_standard_top_of_body_html_generation',
+        'priority' => 0,
+    ],
+];
