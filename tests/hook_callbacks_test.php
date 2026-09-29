@@ -17,6 +17,7 @@
 namespace filter_externalcontent;
 
 use advanced_testcase;
+use context_course;
 use core\hook\output\before_standard_top_of_body_html_generation;
 
 /**
@@ -147,30 +148,23 @@ final class hook_callbacks_test extends advanced_testcase {
     }
 
     /**
-     * Ensure users with the view capability get output.
+     * Ensure users only see highlights in contexts where they have the view capability.
      */
-    public function test_user_with_view_capability_gets_output(): void {
+    public function test_view_capability_scope(): void {
         $this->resetAfterTest();
         $this->create_highlight();
 
-        $user = $this->getDataGenerator()->create_user();
-        $roleid = create_role(
-            'Externalcontent viewer',
-            'externalcontentviewer',
-            'Can view external content highlights'
-        );
-        assign_capability(
-            'filter/externalcontent:view',
-            CAP_ALLOW,
-            $roleid,
-            \context_system::instance()->id,
-            true
-        );
-        role_assign($roleid, $user->id, \context_system::instance()->id);
-        accesslib_clear_all_caches_for_unit_testing();
+        global $PAGE;
+
+        $course = $this->getDataGenerator()->create_course();
+        $othercourse = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_and_enrol($course, 'manager');
         $this->setUser($user);
 
-        $html = $this->run_hook();
-        $this->assertStringContainsString('<style id="filter-externalcontent-anchor-css">', $html);
+        $PAGE->set_context(context_course::instance($course->id));
+        $this->assertStringContainsString('<style id="filter-externalcontent-anchor-css">', $this->run_hook());
+
+        $PAGE->set_context(context_course::instance($othercourse->id));
+        $this->assertSame('', $this->run_hook());
     }
 }
