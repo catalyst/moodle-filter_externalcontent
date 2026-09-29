@@ -36,8 +36,9 @@ class hook_callbacks {
     public static function before_standard_top_of_body_html_generation(
         before_standard_top_of_body_html_generation $hook
     ): void {
-        $systemcontext = \context_system::instance();
-        if (!has_capability('filter/externalcontent:view', $systemcontext)) {
+        global $PAGE;
+
+        if (!has_capability('filter/externalcontent:view', $PAGE->context)) {
             return;
         }
 
